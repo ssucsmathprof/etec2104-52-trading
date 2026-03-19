@@ -1,4 +1,5 @@
-
+from typing import NamedTuple
+import datetime
 import requests
 import json
 import sys
@@ -7,6 +8,29 @@ import csv
 BASE_URL = "http://127.0.0.1:8000/api"
 
 type TeamName = str
+
+
+class RequestError(NamedTuple):
+    status_code: int
+    detail: str
+
+
+class Order(NamedTuple):
+    id: int
+    trader: TeamName
+    symbol: str
+    side: str
+    price: str # TODO:
+    quantity: int
+    remaining: int
+    created_at: datetime.datetime
+
+    def from_dict(dict_order: dict):
+        return Order(int(dict_order["id"]), dict_order["trader"], dict_order["symbol"],
+                     dict_order["side"], dict_order["price"], int(dict_order["quantity"]),
+                     int(dict_order["remaining"]),
+                     datetime.datetime.fromisoformat(dict_order["created_at"]))
+
 
 class TradeBot:
     def __init__(self, username, password):
@@ -40,12 +64,24 @@ class TradeBot:
             return None
 
 
-    def get_orders(self):
+    def get_orders(self) -> list[Order] | RequestError:
         response = requests.get(
             url=BASE_URL + "/orders/open",
             auth=(self.username, self.password),
         )
-        return response.json() # just raw list[dict[]]
+        orders: list[Order] = [];
+        list_dict_orders = response.json() # just raw list[dict[]]
+
+        # If request went wrong, response will be dict, not list
+        if isinstance(list_dict_orders, dict):
+            return RequestError(response.status_code, list_dict_orders["detail"])
+
+        for dict_order in list_dict_orders:
+            order = Order.from_dict(dict_order)
+            orders.append(order)
+
+        return orders
+
 
 def automatic_input(file_path, tradebots: dict[TeamName, TradeBot]):
     """Place orders from csv file at `file_path`, example:
