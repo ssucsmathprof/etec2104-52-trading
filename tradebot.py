@@ -44,7 +44,7 @@ class TradeBot:
         self.username = username
         self.password = password
 
-    def place_order(self, symbol, price, side, quantity):
+    def place_order(self, symbol, price, side, quantity) -> Order | RequestError:
         payload = {
             "symbol": symbol,
             "price": price,
@@ -61,14 +61,18 @@ class TradeBot:
             auth=(self.username, self.password),
         )
 
-        print("\nStatus Code:", response.status_code)
+        #print("\nStatus Code:", response.status_code)
 
-        try:
-            print(json.dumps(response.json(), indent=4))
-            return response.json()
-        except Exception:
-            print(response.text)
-            return None
+        response_dict = response.json()
+
+        if response_dict.get("detail") is not None:
+            err = RequestError(response.status_code, response_dict["detail"])
+            print(err)
+            return err
+
+        order = Order.from_dict(response_dict)
+        #print(order)
+        return order
 
 
     def get_orders(self) -> list[Order] | RequestError:
@@ -106,8 +110,8 @@ def automatic_input(file_path, tradebots: dict[TeamName, TradeBot]):
                 print(f'\tUnknown Trader: {order_record["team"]}')
                 continue
 
-            tradebot.place_order(order_record["symbol"], order_record["price"],
-                                  order_record["side"], order_record["quantity"])
+            print("Posted:", tradebot.place_order(order_record["symbol"], order_record["price"],
+                                                  order_record["side"], order_record["quantity"]))
 
 
 def traders_from_csv(file_path) -> dict[TeamName, TradeBot]:
