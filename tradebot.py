@@ -4,7 +4,7 @@ import json
 import sys
 import csv
 
-BASE_URL = "http://127.0.0.1:8000/api/orders"
+BASE_URL = "http://127.0.0.1:8000/api"
 
 type TeamName = str
 
@@ -25,7 +25,7 @@ class TradeBot:
         print(json.dumps(payload, indent=4))
 
         response = requests.post(
-            BASE_URL,
+            BASE_URL + "/orders",
             json=payload,
             auth=(self.username, self.password),
         )
@@ -42,7 +42,7 @@ class TradeBot:
 
     def get_orders(self):
         response = requests.get(
-            url=BASE_URL + "/open",
+            url=BASE_URL + "/orders/open",
             auth=(self.username, self.password),
         )
         return response.json() # just raw list[dict[]]
