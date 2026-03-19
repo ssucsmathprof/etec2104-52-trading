@@ -1,11 +1,16 @@
 
 import random
+import request
 import str_universal
+
+
 
 def random_strategy(team, symbols, exchange_state, traders):
     orders = []
     s = random.choice(symbols)
     side = random.choice(["buy", "sell"])
+
+    ret = request.get(url, auth=(trader.username, trader.passowrd))
 
     last = exchange_state["last_trade"][s]
     if last is None:

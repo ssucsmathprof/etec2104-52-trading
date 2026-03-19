@@ -10,7 +10,6 @@ def make_order(team, side, symbol, price, qty):
         "qty": int(qty),
     }
 
-
 def make_trade(buyer, seller, symbol, price, qty):
     return {
         "buyer": buyer,
