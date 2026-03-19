@@ -6,6 +6,8 @@ import csv
 
 BASE_URL = "http://127.0.0.1:8000/api/orders"
 
+type TeamName = str
+
 class TraderBot:
     def __init__(self, username, password):
         self.username = username
@@ -42,7 +44,6 @@ class TraderBot:
         )
         return response.json() # just raw list[dict[]]
 
-type TeamName = str
 def automatic_input(file_path, traderbots: dict[TeamName, TraderBot]):
     """Place orders from csv file at `file_path`, example:
     ```file_path.csv
@@ -63,15 +64,30 @@ def automatic_input(file_path, traderbots: dict[TeamName, TraderBot]):
                                   order_record["side"], order_record["quantity"])
 
 
-if __name__ == "__main__":
+def traders_from_csv(file_path) -> dict[TeamName, TraderBot]:
+    """Load `TraderBot`s from csv file at `file_path`, example:
+    ```file_path.csv
+    username,password
+    "teamA","team1234"
+    "teamB","team1234"
+    ```
 
-    traderbots = {
-        "teamA": TraderBot("teamA","team1234"),
-        "teamB": TraderBot("teamB","team1234"),
-    }
+    Returns a dictionary matching given usernames with their corresponding `TraderBot`.
+    """
+    traderbots = {}
+    with open(file_path, newline='') as f:
+        reader = csv.DictReader(f)
+        for trader in reader:
+            traderbots[trader["username"]] = TraderBot(trader["username"], trader["password"])
+
+    return traderbots
+
+
+if __name__ == "__main__":
+    traderbots = traders_from_csv("sample-traders.csv")
 
     for traderbot in traderbots.values():
-        traderbot.get_orders()
+        print(traderbot.get_orders())
 
     exit()
     automatic_input("sample-auto-input.csv", traderbots)
