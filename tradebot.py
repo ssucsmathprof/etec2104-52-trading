@@ -1,3 +1,4 @@
+import decimal
 from typing import NamedTuple
 import datetime
 import requests
@@ -20,16 +21,22 @@ class Order(NamedTuple):
     trader: TeamName
     symbol: str
     side: str
-    price: str # TODO:
+    price: decimal.Decimal
     quantity: int
     remaining: int
     created_at: datetime.datetime
 
     def from_dict(dict_order: dict):
-        return Order(int(dict_order["id"]), dict_order["trader"], dict_order["symbol"],
-                     dict_order["side"], dict_order["price"], int(dict_order["quantity"]),
-                     int(dict_order["remaining"]),
-                     datetime.datetime.fromisoformat(dict_order["created_at"]))
+        return Order(
+            id=int(dict_order["id"]),
+            trader=dict_order["trader"],
+            symbol=dict_order["symbol"],
+            side=dict_order["side"],
+            price=decimal.Decimal(dict_order["price"]),
+            quantity=int(dict_order["quantity"]),
+            remaining=int(dict_order["remaining"]),
+            created_at=datetime.datetime.fromisoformat(dict_order["created_at"]),
+        )
 
 
 class TradeBot:
@@ -126,7 +133,14 @@ if __name__ == "__main__":
     tradebots = traders_from_csv("sample-traders.csv")
 
     for traderbot in tradebots.values():
-        print(traderbot.get_orders())
+        print()
+        orders = traderbot.get_orders()
+        if isinstance(orders, RequestError):
+            print(orders)
+            continue
+
+        for order in orders:
+            print(order)
 
     exit()
     automatic_input("sample-auto-input.csv", tradebots)
