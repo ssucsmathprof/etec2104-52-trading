@@ -116,15 +116,17 @@ def get_recent_trades(trader):
 
     return all_trades
 
+def get_market_picture():
+    pass
 
 #def make_order(team, side, symbol, price, qty):
-    return {
-        "team": team,
-        "side": side,
-        "symbol": symbol,
-        "price": float(price),
-        "qty": int(qty),
-    }
+    #return {
+        #"team": team,
+        #"side": side,
+        #"symbol": symbol,
+        #"price": float(price),
+        #"qty": int(qty),
+    #}
 
 #def make_trade(buyer, seller, symbol, price, qty):
     return {

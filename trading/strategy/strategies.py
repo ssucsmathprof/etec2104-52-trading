@@ -1,3 +1,5 @@
 import random
 import request
 import str_universal
+
+enum
