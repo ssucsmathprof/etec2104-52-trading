@@ -144,6 +144,9 @@ def get_recent_trades(trader):
     return all_trades
 
 def get_market_picture():
+    #kylie will work on this
+    #get market snapshot as a list of orders
+    #needs createdAt
     pass
 
 def can_buy(trader):
