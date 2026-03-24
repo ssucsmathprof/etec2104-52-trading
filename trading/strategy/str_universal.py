@@ -122,3 +122,12 @@ def get_market_picture():
 def can_buy(trader):
     ...
     #you got coin?
+
+def get_best_rate(market_symbol):
+    market_picture = get_market_picture()
+    best_rate = 0
+    for order in market_picture:
+        if order.symbol == market_symbol and order.price > best_rate:
+            best_rate = order.price
+
+    return best_rate
