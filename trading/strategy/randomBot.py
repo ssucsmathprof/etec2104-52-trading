@@ -1,59 +1,31 @@
 import random
+from str_universal import can_buy,place_order
 
-class randomBot(object):
-    def __init__(self):
+
+class randomBot():
+    def __init__(self, trader):
         mood = 0
+        self.trader = trader
+
 
     def doStuff(self,mood):
+        orders = []
         # random bs, go!
         if mood < 0.5:
             spread = random.randint(1, 3)
             size = random.randint(5, 20)
 
-            buy_price = ltp - spread
-            sell_price = ltp + spread
-
-            if can_buy(buy_price, size):
-                orders.append({
-                    "team": team,
-                    "symbol": symbol,
-                    "side": "BUY",
-                    "price": buy_price,
-                    "qty": size,
-                })
-
-            if can_sell(size):
-                orders.append({
-                    "team": team,
-                    "symbol": symbol,
-                    "side": "SELL",
-                    "price": sell_price,
-                    "qty": size,
-                })
+            if can_buy(self.trader):
+                place_order(self.trader)
 
         # impulse
-        elif mood < 0.8:
+        if mood < 0.8:
             side = random.choice(["BUY", "SELL"])
-            price = ltp + random.randint(-4, 4)
             qty = random.randint(1, 25)
-
-            if side == "BUY" and can_buy(price, qty):
-                orders.append({
-                    "team": team,
-                    "symbol": symbol,
-                    "side": "BUY",
-                    "price": price,
-                    "qty": qty,
-                })
-
-            if side == "SELL" and can_sell(qty):
-                orders.append({
-                    "team": team,
-                    "symbol": symbol,
-                    "side": "SELL",
-                    "price": price,
-                    "qty": qty,
-                })
+            if side == "BUY" and can_buy(self.trader):
+                ...
+            if side == "SELL":
+                ...
 
         # Panik
         else:
@@ -61,22 +33,8 @@ class randomBot(object):
             qty = random.randint(10, 40)
 
             if side == "BUY":
-                price = ltp + random.randint(2, 6)
-                if can_buy(price, qty):
-                    orders.append({
-                        "team": team,
-                        "symbol": symbol,
-                        "side": "BUY",
-                        "price": price,
-                        "qty": qty,
-                    })
+                if can_buy(self.trader):
+                    ...
             else:
-                price = ltp - random.randint(2, 6)
-                if can_sell(qty):
-                    orders.append({
-                        "team": team,
-                        "symbol": symbol,
-                        "side": "SELL",
-                        "price": price,
-                        "qty": qty,
-                    })
+                ...
+                #sell
