@@ -15,6 +15,30 @@ class RequestError(NamedTuple):
     status_code: int
     detail: str
 
+class Symbol(NamedTuple):
+    id: int
+    code: str
+
+    def from_dict(dict_symbol: dict):
+        return Symbol(
+            id=dict_symbol["id"],
+            code=dict_symbol["code"],
+        )
+
+class MarketReport(NamedTuple):
+    id: int
+    symbol: Symbol
+    last_price: decimal.Decimal
+    updated_at: datetime.datetime
+
+    def from_dict(dict_market: dict):
+        return MarketReport(
+            id=dict_market["id"],
+            symbol=Symbol.from_dict(dict_market["symbol"]),
+            last_price=decimal.Decimal(dict_market["last_price"]),
+            updated_at=datetime.datetime.fromisoformat(dict_market["updated_at"]),
+        )
+
 
 class Order(NamedTuple):
     id: int
@@ -94,6 +118,26 @@ class TradeBot:
         return orders
 
 
+    def get_market(self) -> list[MarketReport] | RequestError:
+        response = requests.get(
+            url=BASE_URL + "/market",
+            auth=(self.username, self.password),
+        )
+        market_reports: list[MarketReport] = [];
+        list_dict_reports = response.json() # just raw list[dict[]]
+
+        # If request went wrong, response will be dict, not list
+        # (Though I'm not sure when this would error)
+        if isinstance(list_dict_reports, dict):
+            return RequestError(response.status_code, list_dict_reports["detail"])
+
+        for dict_report in list_dict_reports:
+            report = MarketReport.from_dict(dict_report)
+            market_reports.append(report)
+
+        return market_reports
+
+
 def automatic_input(file_path, tradebots: dict[TeamName, TradeBot]):
     """Place orders from csv file at `file_path`, example:
     ```file_path.csv
@@ -138,13 +182,13 @@ if __name__ == "__main__":
 
     for traderbot in tradebots.values():
         print()
-        orders = traderbot.get_orders()
-        if isinstance(orders, RequestError):
-            print(orders)
+        market = traderbot.get_market()
+        if isinstance(market, RequestError):
+            print(market)
             continue
 
-        for order in orders:
-            print(order)
+        for report in market:
+            print(report)
 
     exit()
     automatic_input("sample-auto-input.csv", tradebots)
