@@ -122,7 +122,3 @@ def get_market_picture():
 def can_buy(trader):
     ...
     #you got coin?
-
-def can_sell(trader):
-    ...
-    #do you have stocks?
