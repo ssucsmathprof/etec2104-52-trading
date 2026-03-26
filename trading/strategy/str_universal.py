@@ -1,7 +1,7 @@
 import requests
 import json
 from trading import models
-from Strategy_Objects import OrderBook
+from Strategy_Objects import OrderBook, Trader
 from tradebot import MarketReport, Order, RequestError, Symbol
 
 #SYMBOLS = ['BEAR', 'FROG', 'LZRD']

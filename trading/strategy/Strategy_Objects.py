@@ -78,12 +78,18 @@ class OrderBook:
 class Trader:
 
     def __init__(self, trader_dict):
+        '''
+        Takes a Dictionary from a reponse and turns it into a Trader Object.
+        '''
         self.id = int(trader_dict["id"])
         self.user = trader_dict["user"]
         self.cash = float(trader_dict["cash"])
 
 
     def get_dict(self):
+        '''
+        Converts the Trader Objects into a Dictionary.
+        '''
         trader_dict = {
             "id": str(self.id),
             "name": self.name
@@ -92,6 +98,9 @@ class Trader:
         return trader_dict
 
     def can_buy(self, order):
+        '''
+        Returns True if the Trader can purchase the order, False otherwise.
+        '''
         return self.cash >= order.price * order.quantity
 
     def can_sell(self, order):
