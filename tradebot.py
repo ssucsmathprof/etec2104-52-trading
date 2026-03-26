@@ -13,7 +13,7 @@ type TeamName = str
 
 class RequestError(NamedTuple):
     status_code: int
-    detail: str
+    content: str
 
 class Symbol(NamedTuple):
     """Representation of a single symbol as given by /api/market."""
@@ -101,8 +101,8 @@ class TradeBot:
 
         response_dict = response.json()
 
-        if response_dict.get("detail") is not None:
-            err = RequestError(response.status_code, response_dict["detail"])
+        if response.status_code not in (200, 201):
+            err = RequestError(response.status_code, response.text)
             print(err)
             return err
 
@@ -118,12 +118,14 @@ class TradeBot:
             url=BASE_URL + "/orders/open",
             auth=(self.username, self.password),
         )
+
+        if response.status_code not in (200, 201):
+            err = RequestError(response.status_code, response.text)
+            print(err)
+            return err
+
         orders: list[Order] = [];
         list_dict_orders = response.json() # just raw list[dict[]]
-
-        # If request went wrong, response will be dict, not list
-        if isinstance(list_dict_orders, dict):
-            return RequestError(response.status_code, list_dict_orders["detail"])
 
         for dict_order in list_dict_orders:
             order = Order.from_dict(dict_order)
@@ -139,13 +141,14 @@ class TradeBot:
             url=BASE_URL + "/market",
             auth=(self.username, self.password),
         )
+
+        if response.status_code not in (200, 201):
+            err = RequestError(response.status_code, response.text)
+            print(err)
+            return err
+
         market_reports: list[MarketReport] = [];
         list_dict_reports = response.json() # just raw list[dict[]]
-
-        # If request went wrong, response will be dict, not list
-        # (Though I'm not sure when this would error)
-        if isinstance(list_dict_reports, dict):
-            return RequestError(response.status_code, list_dict_reports["detail"])
 
         for dict_report in list_dict_reports:
             report = MarketReport.from_dict(dict_report)
