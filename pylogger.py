@@ -8,9 +8,9 @@
 #
 # STEP2: HOW TO LOG
 #   "ESSENTIALLY" Print statements that document our code
-#   5 Levels of severity
+#   5 Levels of severity -- In a function (for example)
 #       - DEBUG:    lowest, states what the function does
-#       - INFO:     states whats expected of the function
+#       - INFO:     states what's expected of the function
 #       - WARNING:  potential problem - function works
 #       - ERROR:    problem happened - (a) function failed
 #       - CRITICAL: highest(rare), Program has failed
@@ -23,15 +23,25 @@
 #               logger.error("Attempted to divide by zero!")
 #               return None
 #           return x / y
+#
 #       result = divide(10, 2)
 #       logger.info(f"Division result: {result}")
 #       result = divide(10, 0)
-#       logger.warning("Division operation failed"
+#       logger.warning("Division operation failed")
 #
+#
+# CRITICAL
+#
+#       Rarely happens, but when it does...
+#                        ...something catastrophic happened!
+#   Use for:
+#       - A bug that causes the module to crash or become unusable
+#       - Initialization failure (missing or corrupt config files)
+
 
 # PYTHONS DOCUMENTATION
 #   https://docs.python.org/3/howto/logging.html
-#====================================================================#
+#=====================================================================#
 import logging
 
 file_handler = logging.FileHandler('trade.log') # print to file
