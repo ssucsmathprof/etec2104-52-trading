@@ -86,7 +86,7 @@ def get_recent_trades(trader):
         return error_check
 
     for trade_dict in list_trade_dict:
-        trade_object = dict_to_trade(trade_dict)
+        trade_object = Order.from_dict(trade_dict)
         all_trades.append(trade_object)
 
     return all_trades
@@ -108,5 +108,5 @@ def get_best_rate(market_symbol):
     return best_rate
 
 trader = models.Trader.objects.get(username="teama")
-get_recent_orders(trader)
+print(get_recent_orders(trader))
 #place_order()
