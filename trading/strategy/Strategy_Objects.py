@@ -35,7 +35,7 @@ class OrderBook:
         if self.youngest_order is None or order.created_at > self.youngest_order.created_at:
             self.youngest_order = order
 
-    def add_order(self, new_order):
+    def append(self, new_order):
         '''
         Adds a new order to the OrderBook if the order isn't in the OrderBook yet.
         new_order: new_order object.
@@ -72,4 +72,7 @@ class OrderBook:
         Returns a list of all orders in the OrderBook.
         '''
         return self.order_list
+
+
+
 

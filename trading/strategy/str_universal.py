@@ -1,6 +1,7 @@
 import requests
 import json
 from trading import models
+from Strategy_Objects import OrderBook
 from tradebot import MarketReport, Order, RequestError, Symbol
 
 #SYMBOLS = ['BEAR', 'FROG', 'LZRD']
@@ -15,73 +16,18 @@ RECENT_TRADE_URL = BASE_URL + "api/trades/recent"
 SIDE_BUY = "BUY"
 SIDE_SELL = "SELL"
 
+TheOrderBook = OrderBook([])
 
-# class ErrorCode:
-#     def __init__(self, status_code, details):
-#         details = details
-#         code = status_code
-#
-#
-# class Order():
-#     def __init__(self, order_dict):
-#         self.id = order_dict["id"]
-#         self.trader = order_dict["trader"]
-#         self.symbol = order_dict["symbol"]
-#         self.side = order_dict["side"]
-#         self.quantity = int(order_dict["quantity"])
-#         self.remaining = int(order_dict["remaining"])
-#         self.price = float(order_dict["price"])
-#         self.created_at = order_dict["created_at"]
-#
-# class Trade():
-#     def __init__(self, trade_dict):
-#         self.id = int(trade_dict["id"])
-#         self.symbol = trade_dict["symbol"]
-#         self.buyer = trade_dict["buyer"]
-#         self.seller = trade_dict["seller"]
-#         self.quantity = int(trade_dict["quantity"])
-#         self.price = float(trade_dict["price"])
-#         self.created_at = trade_dict["created_at"]
-#
-# class Trader():
-#
-#     def __init__(self, trader_dict):
-#         self.id = (int)trader_dict["id"]
-#         self.username = trader_dict["username"]
-#         self.password = trader_dict["password"]
-
-# def dict_to_order(order_dict):
-#     return models.Order(
-#         id=int(order_dict["id"]),
-#         trader=order_dict["trader"],
-#         symbol=order_dict["symbol"],
-#         side=order_dict["side"],
-#         quantity=int(order_dict["quantity"]),
-#         remaining=int(order_dict["remaining"]),
-#         price=float(order_dict["price"]),
-#         created_at=order_dict["created_at"],
-#         #price=decimal.Decimal(order_dict["price"]),
-#         #created_at=datetime.datetime.fromisoformat(order_dict["created_at"]),
-#     )
-
-# def dict_to_trade(trade_dict):
-#     return models.Trade(
-#         id=int(trade_dict["id"]),
-#         symbol = trade_dict["symbol"],
-#         buyer = trade_dict["buyer"],
-#         seller = trade_dict["seller"],
-#         quantity = int(trade_dict["quantity"]),
-#         price=float(trade_dict["price"]),
-#         created_at=trade_dict["created_at"],
-#     )
 
 
 def check_for_errors(json_response):
     if not isinstance(json_response, dict):
         return None
-    if json_response.get("detail") is None:
+    details = json_response.get("detail")
+    if details is None:
         return None
-    return ErrorCode(json_response["status code"], json_response["detail"])
+    return RequestError(details.status_code, json_response["detail"])
+
 
 def place_order(trader, symbol, price, side, quantity):
     order_data = {
@@ -102,8 +48,9 @@ def place_order(trader, symbol, price, side, quantity):
     if not error_check is None:
         return error_check
 
-    order = dict_to_order(response_dict)
-    return order
+    placed_order = Order.from_dict(response_dict)
+    TheOrderBook.append(placed_order)
+    return placed_order
 
 def get_recent_orders(trader):
     response = requests.get(
@@ -144,18 +91,15 @@ def get_recent_trades(trader):
 
     return all_trades
 
-def get_market_picture():
-    #kylie will work on this
-    #get market snapshot as a list of orders
-    #needs createdAt
-    pass
+def get_orderbook_orders():
+    return TheOrderBook.get_all_orders()
 
 def can_buy(trader):
     ...
     #you got coin?
 
 def get_best_rate(market_symbol):
-    market_picture = get_market_picture()
+    market_picture = TheOrderBook.get_all_orders()
     best_rate = 0
     for order in market_picture:
         if order.symbol == market_symbol and order.price > best_rate:
