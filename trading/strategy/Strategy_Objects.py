@@ -47,20 +47,40 @@ class OrderBook:
             self.check_order_age(new_order)
             self.order_list.append(new_order)
 
-    def get_oldest_order(self):
+    def get_oldest_order(self, symbol=None):
         '''
-        Returns the oldest order in the OrderBook.
+        Returns the oldest order in the OrderBook of some symbol, or the oldest if symbol is None.
         '''
-        return self.oldest_order
+
+        if symbol is None:
+            return self.oldest_order
+
+        oldest_order = None
+        for order in self.order_list:
+            if order.symbol == symbol:
+                if oldest_order is None:
+                    if order.created_art < oldest_order:
+                        oldest_order = order
+        return oldest_order
 
 
 
-    def get_youngest_order(self):
+
+    def get_youngest_order(self, symbol=None):
         '''
-        Returns the youngest order in the OrderBook.
+        Returns the youngest order in the OrderBook of some symbol, or the youngest if symbol is None.
         '''
 
-        return self.youngest_order
+        if symbol is None:
+            return self.youngest_order
+
+        youngest_order = None
+        for order in self.order_list:
+            if order.symbol == symbol:
+                if youngest_order is None:
+                    if order.created_art > youngest_order:
+                        youngest_order = order
+        return youngest_order
 
 
     def in_order_book(self, order):
@@ -92,7 +112,7 @@ class Trader:
         '''
         trader_dict = {
             "id": str(self.id),
-            "name": self.name
+            "name": self.name,
             "cash": str(self.cash)
         }
         return trader_dict

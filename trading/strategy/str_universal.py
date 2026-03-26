@@ -21,6 +21,9 @@ TheOrderBook = OrderBook([])
 
 
 def check_for_errors(json_response):
+    '''
+    Returns Error Request if Error in json response, and None otherwise.
+    '''
     if not isinstance(json_response, dict):
         return None
     details = json_response.get("detail")
@@ -30,6 +33,9 @@ def check_for_errors(json_response):
 
 
 def place_order(trader, symbol, price, side, quantity):
+    '''
+    Send a place order to the server.
+    '''
     order_data = {
             "symbol": symbol,
             "price": price,
@@ -53,6 +59,9 @@ def place_order(trader, symbol, price, side, quantity):
     return placed_order
 
 def get_recent_orders(trader):
+    '''
+    Gets all recent orders a trader has placed.
+    '''
     response = requests.get(
         url=RECENT_ORDER_URL,
         auth=(trader.username, trader.password),
@@ -73,6 +82,9 @@ def get_recent_orders(trader):
 
 
 def get_recent_trades(trader):
+    '''
+    Returns the recent trades that a given trader has placed.
+    '''
     response = requests.get(
         url=RECENT_TRADE_URL,
         auth=(trader.username, trader.password),
@@ -92,6 +104,9 @@ def get_recent_trades(trader):
     return all_trades
 
 def get_orderbook_orders():
+    '''
+    Gets a list of all orders that any strategy has placed.
+    '''
     return TheOrderBook.get_all_orders()
 
 def can_buy(trader):
@@ -99,6 +114,9 @@ def can_buy(trader):
     #you got coin?
 
 def get_best_rate(market_symbol):
+    '''
+    Gets the best rate for a given market symbol.
+    '''
     market_picture = TheOrderBook.get_all_orders()
     best_rate = 0
     for order in market_picture:

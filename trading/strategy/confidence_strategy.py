@@ -5,8 +5,6 @@ from strategies import str_universal as strat
 CONFIDENCE_WEIGHT = 1.4
 
 class ConfidenceSellStrategy():
-
-
     def __init__(self, trader, max_confidence, order, sell_goal):
 
         ## PUBLIC ATTRIBUTES
@@ -21,12 +19,6 @@ class ConfidenceSellStrategy():
         self._my_trader = trader
         self._going_rate = 0
 
-    # def raise_confidence(self):
-    #     pass
-    #
-    # def lower_confidence(self):
-    #     pass
-
     def adjust_confidence(self, value):
         self.current_nervousness += value * CONFIDENCE_WEIGHT
 
@@ -38,47 +30,33 @@ class ConfidenceSellStrategy():
             return True
         return self.newest_order.created_at < order.created_at
 
-    def set_newest_order(self, order_list):
-        for order in order_list:
-            if self.is_order_newer(order):
-                self.newest_order = order
-
-
-
     def check_recent_trend(self):
-        current_market = strat.get_market_picture()
-
-
-        for order in current_market.orders:
+        current_market = strat.get_orderbook_orders()
+        for order in current_market:
             if order.symbol == self.my_order.symbol and self.is_order_newer(order):
 
                 difference = self.my_order.price - order.price
                 self.adjust_confidence(difference)
-                # if order.price >= self.my_order.price:
-                #     self.raise_confidence()
-                # else:
-                #     self.lower_confidence()
 
-        self.set_newest_order(current_market)
+        self.newest_order = strat.TheOrderBook.get_youngest_order
 
     def should_i_sell(self):
 
         if self.current_nervousness >= self.max_confidence:
             return True
-        current_market = strat.get_market_picture()
-        for order in current_market.orders:
+        current_market = strat.get_orderbook_orders()
+        for order in current_market:
             if order.symbol == self.my_order.symbol:
                 if order.price >= self.sell_goal:
                     return True
         return False
 
-
-
     def update_strategy(self):
         self.check_recent_trend()
         if self.should_i_sell():
+            print("Selling My Stock")
             best_rate = strat.get_best_rate(self.my_order.symbol)
             strat.place_order(self._my_trader, self.my_order.symbol, best_rate, "SELL", self.my_order.quantity)
-
-
+        else:
+            print("Waiting for My Stock to be worth more")
 
