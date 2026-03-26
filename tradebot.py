@@ -16,6 +16,8 @@ class RequestError(NamedTuple):
     detail: str
 
 class Symbol(NamedTuple):
+    """Representation of a single symbol as given by /api/market."""
+
     id: int
     code: str
 
@@ -26,6 +28,8 @@ class Symbol(NamedTuple):
         )
 
 class MarketReport(NamedTuple):
+    """Report on the current price of a single market/symbol as given by /api/market."""
+
     id: int
     symbol: Symbol
     last_price: decimal.Decimal
@@ -41,6 +45,8 @@ class MarketReport(NamedTuple):
 
 
 class Order(NamedTuple):
+    """Report on an order as given by /api/orders and /api/orders/open."""
+
     id: int
     trader: TeamName
     symbol: str
@@ -64,11 +70,17 @@ class Order(NamedTuple):
 
 
 class TradeBot:
+    """A trader capable of interacting with the api at /api."""
+
     def __init__(self, username, password):
         self.username = username
         self.password = password
 
     def place_order(self, symbol, price, side, quantity) -> Order | RequestError:
+        """Place a new order. Returns either the created Order or a RequestError if the request
+        fails.
+        """
+
         payload = {
             "symbol": symbol,
             "price": price,
@@ -100,6 +112,8 @@ class TradeBot:
 
 
     def get_orders(self) -> list[Order] | RequestError:
+        """Get a list of the trader's currently open orders."""
+
         response = requests.get(
             url=BASE_URL + "/orders/open",
             auth=(self.username, self.password),
@@ -119,6 +133,8 @@ class TradeBot:
 
 
     def get_market(self) -> list[MarketReport] | RequestError:
+        """Get a list of MarketReports outlining the state of the market."""
+
         response = requests.get(
             url=BASE_URL + "/market",
             auth=(self.username, self.password),
