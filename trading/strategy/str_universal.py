@@ -1,6 +1,7 @@
 import requests
 import json
 from trading import models
+from tradebot import MarketReport, Order, RequestError, Symbol
 
 #SYMBOLS = ['BEAR', 'FROG', 'LZRD']
 #SIDES = ("BUY", "SELL")
@@ -15,39 +16,39 @@ SIDE_BUY = "BUY"
 SIDE_SELL = "SELL"
 
 
-class ErrorCode:
-    def __init__(self, status_code, details):
-        details = details
-        code = status_code
-
-
-class Order():
-    def __init__(self, order_dict):
-        self.id = order_dict["id"]
-        self.trader = order_dict["trader"]
-        self.symbol = order_dict["symbol"]
-        self.side = order_dict["side"]
-        self.quantity = int(order_dict["quantity"])
-        self.remaining = int(order_dict["remaining"])
-        self.price = float(order_dict["price"])
-        self.created_at = order_dict["created_at"]
-
-class Trade():
-    def __init__(self, trade_dict):
-        self.id = int(trade_dict["id"])
-        self.symbol = trade_dict["symbol"]
-        self.buyer = trade_dict["buyer"]
-        self.seller = trade_dict["seller"]
-        self.quantity = int(trade_dict["quantity"])
-        self.price = float(trade_dict["price"])
-        self.created_at = trade_dict["created_at"]
-
-class Trader():
-
-    def __init__(self, trader_dict):
-        self.id = (int)trader_dict["id"]
-        self.username = trader_dict["username"]
-        self.password = trader_dict["password"]
+# class ErrorCode:
+#     def __init__(self, status_code, details):
+#         details = details
+#         code = status_code
+#
+#
+# class Order():
+#     def __init__(self, order_dict):
+#         self.id = order_dict["id"]
+#         self.trader = order_dict["trader"]
+#         self.symbol = order_dict["symbol"]
+#         self.side = order_dict["side"]
+#         self.quantity = int(order_dict["quantity"])
+#         self.remaining = int(order_dict["remaining"])
+#         self.price = float(order_dict["price"])
+#         self.created_at = order_dict["created_at"]
+#
+# class Trade():
+#     def __init__(self, trade_dict):
+#         self.id = int(trade_dict["id"])
+#         self.symbol = trade_dict["symbol"]
+#         self.buyer = trade_dict["buyer"]
+#         self.seller = trade_dict["seller"]
+#         self.quantity = int(trade_dict["quantity"])
+#         self.price = float(trade_dict["price"])
+#         self.created_at = trade_dict["created_at"]
+#
+# class Trader():
+#
+#     def __init__(self, trader_dict):
+#         self.id = (int)trader_dict["id"]
+#         self.username = trader_dict["username"]
+#         self.password = trader_dict["password"]
 
 # def dict_to_order(order_dict):
 #     return models.Order(
