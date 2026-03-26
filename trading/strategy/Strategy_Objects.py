@@ -1,4 +1,6 @@
 
+## Turn to False if a Trader isn't allowed to Sell with no Stocks
+SELL_NO_STOCKS = True
 
 class OrderBook:
     def __init__(self, order_list):
@@ -73,6 +75,25 @@ class OrderBook:
         '''
         return self.order_list
 
+class Trader:
+
+    def __init__(self, trader_dict):
+        self.id = int(trader_dict["id"])
+        self.user = trader_dict["user"]
+        self.cash = float(trader_dict["cash"])
 
 
+    def get_dict(self):
+        trader_dict = {
+            "id": str(self.id),
+            "name": self.name
+            "cash": str(self.cash)
+        }
+        return trader_dict
+
+    def can_buy(self, order):
+        return self.cash >= order.price * order.quantity
+
+    def can_sell(self, order):
+        return True
 

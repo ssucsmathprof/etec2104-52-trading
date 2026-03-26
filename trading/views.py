@@ -15,11 +15,11 @@ def get_trader(user):
     return Trader.objects.get(user=user)
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
-#@permission_classes([IsAuthenticated])
+#@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def me(request):
     trader = get_trader(request.user)
-    trader = Trader.objects.prefetch_related("positions__symbol").get(id=trader.id)
+    #trader = Trader.objects.prefetch_related("positions__symbol").get(id=trader.id)
     return Response(TraderSerializer(trader).data)
 
 @api_view(["POST"])
