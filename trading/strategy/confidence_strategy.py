@@ -20,17 +20,26 @@ class ConfidenceSellStrategy():
         self._going_rate = 0
 
     def adjust_confidence(self, value):
+        '''
+        Adjusts the current nervousness based on some positive or negative value.
+        '''
         self.current_nervousness += value * CONFIDENCE_WEIGHT
 
         # Clamp to non-negative
         self.current_nervousness = max(0, self.current_nervousness)
 
     def is_order_newer(self, order):
+        '''
+        Returns False if the order is older than the newest order, True otherwise.
+        '''
         if self.newest_order == None:
             return True
         return self.newest_order.created_at < order.created_at
 
     def check_recent_trend(self):
+        '''
+        Gets the trend of the market since the last time this function was run.
+        '''
         current_market = strat.get_orderbook_orders()
         for order in current_market:
             if order.symbol == self.my_order.symbol and self.is_order_newer(order):
@@ -41,7 +50,9 @@ class ConfidenceSellStrategy():
         self.newest_order = strat.TheOrderBook.get_youngest_order
 
     def should_i_sell(self):
-
+        '''
+        Tells the order strategy if it should or should not sell.
+        '''
         if self.current_nervousness >= self.max_confidence:
             return True
         current_market = strat.get_orderbook_orders()
@@ -52,6 +63,9 @@ class ConfidenceSellStrategy():
         return False
 
     def update_strategy(self):
+        '''
+        Runs a simple update on this strategy instance
+        '''
         self.check_recent_trend()
         if self.should_i_sell():
             print("Selling My Stock")
@@ -60,3 +74,11 @@ class ConfidenceSellStrategy():
         else:
             print("Waiting for My Stock to be worth more")
 
+
+    def test(self):
+        '''
+        This doesn't work.
+        '''
+        pass
+        ## Make Fake Orders
+        ## Get Predicatble Response
