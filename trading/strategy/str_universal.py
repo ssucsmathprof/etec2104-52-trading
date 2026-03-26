@@ -16,6 +16,9 @@ RECENT_TRADE_URL = BASE_URL + "api/trades/recent"
 SIDE_BUY = "BUY"
 SIDE_SELL = "SELL"
 
+# This is an order book object that contains
+# Every Placed Order that has been made since the Strategy
+# Was first run on the server
 TheOrderBook = OrderBook([])
 
 
@@ -75,7 +78,7 @@ def get_recent_orders(trader):
         return error_check
 
     for order_dict in list_orders_dict:
-        order_object = dict_to_order(order_dict)
+        order_object = Order.from_dict(order_dict)
         all_orders.append(order_object)
 
     return all_orders
@@ -109,10 +112,6 @@ def get_orderbook_orders():
     '''
     return TheOrderBook.get_all_orders()
 
-def can_buy(trader):
-    ...
-    #you got coin?
-
 def get_best_rate(market_symbol):
     '''
     Gets the best rate for a given market symbol.
@@ -122,7 +121,6 @@ def get_best_rate(market_symbol):
     for order in market_picture:
         if order.symbol == market_symbol and order.price > best_rate:
             best_rate = order.price
-
     return best_rate
 
 trader = models.Trader.objects.get(username="teama")
