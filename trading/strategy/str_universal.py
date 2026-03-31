@@ -74,6 +74,8 @@ def get_recent_orders(trader):
     '''
     Returns all recent orders a trader has placed.
     '''
+
+    logger.debug(f"Attempting to get recent orders from trader:{trader}")
     response = requests.get(
         url=RECENT_ORDER_URL,
         auth=(trader.username, trader.password),
@@ -86,6 +88,8 @@ def get_recent_orders(trader):
     if not error_check is None:
         return error_check
 
+
+    logger.debug("Recent orders were successfully retrieved")
     for order_dict in list_orders_dict:
         order_object = Order.from_dict(order_dict)
         all_orders.append(order_object)
@@ -97,6 +101,8 @@ def get_recent_trades(trader):
     '''
     Returns the recent trades that a given trader has placed.
     '''
+
+    logger.debug(f"Attempting to get recent trades from trader:{trader}")
     response = requests.get(
         url=RECENT_TRADE_URL,
         auth=(trader.username, trader.password),
@@ -113,6 +119,7 @@ def get_recent_trades(trader):
         trade_object = Order.from_dict(trade_dict)
         all_trades.append(trade_object)
 
+    logger.debug("Recent trades was successfully retrieved")
     return all_trades
 
 def get_orderbook_orders():
