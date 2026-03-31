@@ -5,6 +5,9 @@ import requests
 import json
 import sys
 import csv
+from pylogger import get_logger
+
+logger = get_logger()
 
 BASE_URL = "http://127.0.0.1:8000/api"
 
@@ -22,6 +25,7 @@ class Symbol(NamedTuple):
     code: str
 
     def from_dict(dict_symbol: dict):
+        logger.debug(f"Creating Symbol object from JSON dictionary: {dict}")
         return Symbol(
             id=dict_symbol["id"],
             code=dict_symbol["code"],
@@ -29,13 +33,13 @@ class Symbol(NamedTuple):
 
 class MarketReport(NamedTuple):
     """Report on the current price of a single market/symbol as given by /api/market."""
-
     id: int
     symbol: Symbol
     last_price: decimal.Decimal
     updated_at: datetime.datetime
 
     def from_dict(dict_market: dict):
+        logger.debug(f"Creating MarketReport object from JSON dictionary: {dict}")
         return MarketReport(
             id=dict_market["id"],
             symbol=Symbol.from_dict(dict_market["symbol"]),
@@ -53,6 +57,7 @@ class Trade(NamedTuple):
     created_at: datetime.datetime
 
     def from_dict(dict_trade: dict):
+        logger.debug(f"Creating Trade object from JSON dictionary: {dict}")
         return Trade(
             id=int(dict_trade["id"]),
             symbol=dict_trade["symbol"],
@@ -76,6 +81,7 @@ class Order(NamedTuple):
     created_at: datetime.datetime
 
     def from_dict(dict_order: dict):
+        logger.debug(f"Creating Order object from JSON dictionary: {dict}")
         return Order(
             id=int(dict_order["id"]),
             trader=dict_order["trader"],
@@ -99,23 +105,29 @@ class TradeBot:
         """Place a new order. Returns either the created Order or a RequestError if the request
         fails.
         """
+        logger.debug(f"Placing Order: {symbol}, {price}, {side}, {quantity}")
 
         try:
             price = decimal.Decimal(price)
             if price <= 0:
+                logger.error("Invalid price: Price must be greater than 0")
                 return RequestError(400, f"Invalid price: must be positive")
         except:
+            logger.error("Invalid price: Price must be a valid integer")
             return RequestError(400, f"Invalid price: {price}")
 
         try:
             quantity = int(quantity)
             if quantity <= 0:
+                logger.error("Invalid quantity: Quantity must be greater than 0")
                 return RequestError(400, f"Invalid quantity: must be positive")
         except:
+            logger.error("Invalid quantity: Quantity must be a valid integer")
             return RequestError(400, f"Invalid quantity: {quantity}")
 
         side = side.strip().upper()
         if side not in {"BUY", "SELL"}:
+            logger.error("Invalid side: Side must be BUY or SELL")
             return RequestError(400, f"Invalid side: {side}")
 
         payload = {
@@ -125,7 +137,7 @@ class TradeBot:
             "quantity": quantity
         }
 
-        print("Sending order:")
+        logger.info(f"Sending order: {payload}")
         print(json.dumps(payload, indent=4))
 
         response = requests.post(
@@ -140,11 +152,11 @@ class TradeBot:
 
         if response.status_code not in (200, 201):
             err = RequestError(response.status_code, response.text)
-            print(err)
+            logger.error(f"Failed to send order! Response Status: {err}")
             return err
 
         order = Order.from_dict(response_dict)
-        #print(order)
+        logger.info(f"JSON Order dictionary made into Order object: {order}")
         return order
 
 
@@ -158,10 +170,10 @@ class TradeBot:
 
         if response.status_code not in (200, 201):
             err = RequestError(response.status_code, response.text)
-            print(err)
             return err
 
-        orders: list[Order] = [];
+        orders: list[Order] = []
+
         list_dict_orders = response.json() # just raw list[dict[]]
 
         for dict_order in list_dict_orders:
