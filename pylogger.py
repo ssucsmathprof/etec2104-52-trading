@@ -59,4 +59,11 @@ logging.basicConfig(level=logging.INFO,
 def get_logger():
     return logging.getLogger(__name__)
 
+def send_order(logger, order):
+    logger.debug(f'sending order: {order}')
+    logger.debug(f'send order')
+
+## Log Incoming and Outgoing Trades
+##
+
 
