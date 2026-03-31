@@ -122,7 +122,12 @@ class Trader:
         Returns True if the Trader can purchase the order, False otherwise.
         '''
         return self.cash >= order.price * order.quantity
-
+    def can_afford(self, price, quantity):
+        '''
+        Returns True if the Trader can afford the order, False otherwise.
+        Duplicate function because we made a silly and are lazy.
+        '''
+        return self.cash >= price * quantity
     def can_sell(self, order):
         return True
 
