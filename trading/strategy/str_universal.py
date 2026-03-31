@@ -37,7 +37,7 @@ def check_for_errors(json_response):
 
 def place_order(trader, symbol, price, side, quantity):
     '''
-    Send a place order to the server.
+    Send a place order to the server and returns the placed order.
     '''
     order_data = {
             "symbol": symbol,
@@ -63,7 +63,7 @@ def place_order(trader, symbol, price, side, quantity):
 
 def get_recent_orders(trader):
     '''
-    Gets all recent orders a trader has placed.
+    Returns all recent orders a trader has placed.
     '''
     response = requests.get(
         url=RECENT_ORDER_URL,
