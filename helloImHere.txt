@@ -1,0 +1,21 @@
+Class Strategies(trader):
+init blah blah:
+	memory of past orders = []
+	order = []
+func str_hi_lo():
+	make decisions
+	return order or watevs
+
+
+
+order 2 dids this
+0rder10
+order 11
+
+
+so what we do is:
+have a trader make a bunch of orders and store that as a limited size array so that we could utilize previous orders to make decisions
+
+how we format it is most likely a dictionary where trader id is 
+
+str()+""
