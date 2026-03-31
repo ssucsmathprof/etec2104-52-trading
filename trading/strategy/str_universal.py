@@ -3,6 +3,7 @@ import json
 from trading import models
 from Strategy_Objects import OrderBook, Trader
 from tradebot import MarketReport, Order, RequestError, Symbol
+from pylogger import get_logger
 
 #SYMBOLS = ['BEAR', 'FROG', 'LZRD']
 #SIDES = ("BUY", "SELL")
@@ -20,7 +21,7 @@ SIDE_SELL = "SELL"
 # Every Placed Order that has been made since the Strategy
 # Was first run on the server
 TheOrderBook = OrderBook([])
-
+logger = get_logger()
 
 
 def check_for_errors(json_response):
@@ -32,7 +33,10 @@ def check_for_errors(json_response):
     details = json_response.get("detail")
     if details is None:
         return None
-    return RequestError(details.status_code, json_response["detail"])
+
+    error = RequestError(details.status_code, json_response["detail"])
+    logger.error(f"An error was give, {error}")
+    return error
 
 
 def place_order(trader, symbol, price, side, quantity):
@@ -47,6 +51,9 @@ def place_order(trader, symbol, price, side, quantity):
         }
     auth = (trader.username, trader.password)
 
+    ## Will need to put Order Object in here
+    logger.debug(f'Attempting to Place Order: Symbol {symbol}, Price: {price}, Side: {side}, Quantity: {quantity}')
+
     server_response = requests.post(
         PLACE_ORDER_URL,
         json=order_data,
@@ -55,9 +62,11 @@ def place_order(trader, symbol, price, side, quantity):
 
     error_check = check_for_errors(response_dict)
     if not error_check is None:
+        logger.error
         return error_check
 
     placed_order = Order.from_dict(response_dict)
+    logger.debug("Order was successfully placed")
     TheOrderBook.append(placed_order)
     return placed_order
 
