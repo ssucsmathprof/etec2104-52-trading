@@ -87,19 +87,51 @@ class SpreadKeeper:
         for report in market_reports:
             self.handle_market(report, open_orders)
 
-if __name__ == "__main__":
-    # have teamA keep the spread, and use teamB
-    team_a = SpreadKeeper(TradeBot("teamA", "team1234"), 2)
+def main():
+    print("TESTING SpreadKeeper strategy")
+
+    spread_threshold = 2
+    market = "TEST"
+    # have teamA keep the spread, and use teamB to manip. market
+    team_a = SpreadKeeper(TradeBot("teamA", "team1234"), spread_threshold)
     team_b = TradeBot("teamB", "team1234")
 
-    team_a.tradebot.place_order("BEAR", 10, "BUY", 10)
-    team_b.place_order("BEAR", 10, "SELL", 10)
+    # ensure there's a last price in BEAR at 10
+    team_a.tradebot.place_order(market, 10, "BUY", 10)
+    team_b.place_order(market, 10, "SELL", 10)
 
     team_a.tick()
 
     def get_applicable_orders(order: Order) -> bool:
-        return False
+        return abs(10 - order.price) <= spread_threshold and order.symbol == market
 
-    open_orders = team_a.tradebot.get_orders()
-    open_orders = filter(get_applicable_orders, open_orders)
+    def check():
+        open_orders = team_a.tradebot.get_orders()
+        if isinstance(open_orders, RequestError):
+            print("Couldn't get open orders! >:[")
+            return False
+
+        orders_in_threshold = list(filter(get_applicable_orders, open_orders))
+        if len(orders_in_threshold) != 2:
+            print(f"EXPECTED 2 orders at the threshold. FOUND {len(orders_in_threshold)}")
+            for order in orders_in_threshold:
+                print(order)
+            return False
+
+        return True
+
+    if not check(): return
+
+    team_b.place_order(market, 12, "BUY", 10)
+    team_a.tick()
+    if not check(): return
+
+    team_b.place_order(market, 8, "SELL", 10)
+    team_a.tick()
+    if not check(): return
+
+    print("TESTING SpreadKeeper strategy: Passes!")
+
+if __name__ == "__main__":
+    main()
 
