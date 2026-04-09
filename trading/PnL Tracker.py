@@ -52,11 +52,13 @@ def check_realized_gains(trader_object):
             realized_gains_dict[order["symbol"]] = order["quantity"] * order["price"] - actual_realized_gains[
                 order["symbol"]]
 
-
-
-
 def check_unrealized_gains():
-    pass
+
+
+
+
+    ## What I need is a dictionary that has the key being the symbol and the qty the average price I spent for each item
+    ## THen I compare that against a market screenshot
 
 def check_cash_discrepancy(trader_object):
     trader_exchange = get_trader(trader_object.username)
