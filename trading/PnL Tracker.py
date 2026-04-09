@@ -31,13 +31,26 @@ def check_realized_gains(trader_object):
 
     for trade in trade_list:
         if trade["symbol"] not in realized_gains_dict:
-            realized_gains_dict[trade["symbol"]] = 0
+            realized_gains_dict[trade["symbol"]] = []
 
-        realized_gains_dict[trade["symbol"]] += trade["quantity"] * trade["price"]
+    bundle_tuple = (trade["quantity"], trade["price"])
+    realized_gains_dict[trade["symbol"]].append(bundle_tuple)
 
+    realized_purchase_dict = {}
+    for symbol in realized_gains_dict:
+
+        total_spent = 0
+        total_qty = 0
+        for bundle in trade["symbol"]:
+            total_spent += bundle[1]
+            total_qty += bundle[0]
+        realized_purchase_dict[symbol] = total_spent / total_qty
+
+    actual_realized_gains = {}
     for order in order_list:
-        if order["symbol"] in realized_gains_dict:
-            realized_gains_dict[order["symbol"]] -= order["quantity"] * order["price"]
+        if order["symbol"] in actual_realized_gains:
+            realized_gains_dict[order["symbol"]] = order["quantity"] * order["price"] - actual_realized_gains[
+                order["symbol"]]
 
 
 
