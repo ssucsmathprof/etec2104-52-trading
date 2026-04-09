@@ -147,13 +147,18 @@ class TradeBot:
         )
 
         #print("\nStatus Code:", response.status_code)
+        #print("Text:", repr(response.text))
 
-        response_dict = response.json()
+        #response_dict = response.json()
 
         if response.status_code not in (200, 201):
             err = RequestError(response.status_code, response.text)
             logger.error(f"Failed to send order! Response Status: {err}")
             return err
+        try:
+            response_dict = response.json()
+        except:
+            response_dict = response.json()
 
         order = Order.from_dict(response_dict)
         logger.info(f"JSON Order dictionary made into Order object: {order}")
