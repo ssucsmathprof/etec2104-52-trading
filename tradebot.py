@@ -5,9 +5,10 @@ import requests
 import json
 import sys
 import csv
-from pylogger import get_logger
 
-logger = get_logger()
+from pylogger import get_logger
+from logging import Logger
+logger: Logger = get_logger()
 
 BASE_URL = "http://127.0.0.1:8000/api"
 
@@ -168,6 +169,7 @@ class TradeBot:
     def get_orders(self) -> list[Order] | RequestError:
         """Get a list of the trader's currently open orders."""
 
+        logger.info(f"{self.username}: Requesting orders (GET /api/orders/open)")
         response = requests.get(
             url=BASE_URL + "/orders/open",
             auth=(self.username, self.password),
@@ -175,6 +177,7 @@ class TradeBot:
 
         if response.status_code not in (200, 201):
             err = RequestError(response.status_code, response.text)
+            logger.error(f"Failed to get orders: {err}")
             return err
 
         orders: list[Order] = []
@@ -185,9 +188,13 @@ class TradeBot:
             order = Order.from_dict(dict_order)
             orders.append(order)
 
+        logger.info(f"Received {len(orders)} Orders")
+        logger.debug(f"Orders: {orders}")
+
         return orders
 
     def recent_trades(self) -> list[Trade] | RequestError:
+        logger.info(f"{self.username}: Requesting recent trades (GET /api/trades/recent)")
         response = requests.get(
             url=BASE_URL + "/trades/recent",
             auth=(self.username, self.password),
@@ -197,11 +204,16 @@ class TradeBot:
         list_dict_trades = response.json()
 
         if isinstance(list_dict_trades, dict):
-            return RequestError(response.status_code, list_dict_trades["detail"])
+            err = RequestError(response.status_code, list_dict_trades["detail"])
+            logger.error(f"Failed to get trades: {err}")
+            return err
 
         for dict_trade in list_dict_trades:
             trade = Trade.from_dict(dict_trade)
             trades.append(trade)
+
+        logger.info(f"Received {len(trades)} Trades")
+        logger.debug(f"Trades: {trades}")
 
         return trades
 
@@ -209,6 +221,7 @@ class TradeBot:
     def get_market(self) -> list[MarketReport] | RequestError:
         """Get a list of MarketReports outlining the state of the market."""
 
+        logger.info(f"{self.username}: Requesting market state (GET /api/market)")
         response = requests.get(
             url=BASE_URL + "/market",
             auth=(self.username, self.password),
@@ -216,7 +229,7 @@ class TradeBot:
 
         if response.status_code not in (200, 201):
             err = RequestError(response.status_code, response.text)
-            print(err)
+            logger.error(f"Failed to get market state: {err}")
             return err
 
         market_reports: list[MarketReport] = [];
@@ -225,6 +238,9 @@ class TradeBot:
         for dict_report in list_dict_reports:
             report = MarketReport.from_dict(dict_report)
             market_reports.append(report)
+
+        logger.info(f"Received Reports for {len(market_reports)} Markets")
+        logger.debug(f"Market Reports: {market_reports}")
 
         return market_reports
 
@@ -237,16 +253,21 @@ def automatic_input(file_path, tradebots: dict[TeamName, TradeBot]):
     ```
     """
     with open(file_path, newline='') as file:
+        logger.info(f"Placing orders from {file_path}")
+
         reader = csv.DictReader(file)
         for order_num,order_record in enumerate(reader):
             tradebot = tradebots.get(order_record["team"])
             if tradebot is None:
-                print(f'Order #{order_num}: {order_record}')
-                print(f'\tUnknown Trader: {order_record["team"]}')
+                logger.error(
+                    f'Failed to place order #{order_num}: '
+                    f'Unknown Trader: {order_record["team"]}'
+                )
+                logger.debug(f'Order: {order_record}')
                 continue
 
-            print("Posted:", tradebot.place_order(order_record["symbol"], order_record["price"],
-                                                  order_record["side"], order_record["quantity"]))
+            tradebot.place_order(order_record["symbol"], order_record["price"],
+                                 order_record["side"], order_record["quantity"])
 
 
 def traders_from_csv(file_path) -> dict[TeamName, TradeBot]:
@@ -261,9 +282,12 @@ def traders_from_csv(file_path) -> dict[TeamName, TradeBot]:
     """
     tradebots = {}
     with open(file_path, newline='') as f:
+        logger.info(f"Loading traders from {file_path}")
         reader = csv.DictReader(f)
         for trader in reader:
-            tradebots[trader["username"]] = TradeBot(trader["username"], trader["password"])
+            trade_bot = TradeBot(trader["username"], trader["password"])
+            logger.debug(f"Loaded Trader: {trade_bot}")
+            tradebots[trader["username"]] = trade_bot
 
     return tradebots
 
