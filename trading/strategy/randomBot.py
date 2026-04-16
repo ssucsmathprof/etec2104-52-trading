@@ -1,4 +1,4 @@
-import random
+import randomtradebot
 from str_universal import *
 from Strategy_Objects import *
 
