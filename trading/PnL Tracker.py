@@ -12,9 +12,9 @@ BASE_URL = "http://127.0.0.1:8000/api"
 logger = get_logger()
 def check_response_for_errors(response):
     ## TODO Implement This
-    # I think i did it right but check me on it
+    ## I think i did it right but check me on it
     '''
-    Returns Error Request if Error in json response, and None otherwise.
+    Returns Error Request?
     '''
     if not isinstance(response, dict):
         return None
@@ -41,7 +41,6 @@ def check_realized_gains(trader_object):
     check_response_for_errors(trade_list)
 
 
-
     realized_gains_dict = {}
 
     for trade in trade_list:
@@ -53,7 +52,6 @@ def check_realized_gains(trader_object):
 
     realized_purchase_dict = {}
     for symbol in realized_gains_dict:
-
         totals_spent = 0
         totals_qty = 0
         for bundle in trade["symbol"]:
@@ -67,10 +65,11 @@ def check_realized_gains(trader_object):
             realized_gains_dict[order["symbol"]] = order["quantity"] * order["price"] - actual_realized_gains[
                 order["symbol"]]
 
-def check_unrealized_gains():
+def check_unrealized_gains(trader_object):
     ...
     ## What I need is a dictionary that has the key being the symbol and the qty the average price I spent for each item
     ## THen I compare that against a market screenshot
+    ## What I need is for my brain to work
 
 def check_cash_discrepancy(trader_object):
     trader_exchange = get_trader(trader_object.username)
