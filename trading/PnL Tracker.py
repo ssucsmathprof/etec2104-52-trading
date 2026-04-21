@@ -1,15 +1,30 @@
 from pylogger import get_logger
 from views import get_trader
+from tradebot import RequestError
 import requests
+import json
+
 logger = get_logger()
 
 BASE_URL = "http://127.0.0.1:8000/api"
 
 ## Get all orders from a Trader
-
+logger = get_logger()
 def check_response_for_errors(response):
     ## TODO Implement This
-    pass
+    # I think i did it right but check me on it
+    '''
+    Returns Error Request if Error in json response, and None otherwise.
+    '''
+    if not isinstance(response, dict):
+        return None
+    details = response.get("detail")
+    if details is None:
+        return None
+
+    error = RequestError(details.status_code, response["detail"])
+    logger.error(f"An error was give, {error}")
+    return error
 
 def check_realized_gains(trader_object):
     order_list = requests.get(
@@ -39,12 +54,12 @@ def check_realized_gains(trader_object):
     realized_purchase_dict = {}
     for symbol in realized_gains_dict:
 
-        total_spent = 0
-        total_qty = 0
+        totals_spent = 0
+        totals_qty = 0
         for bundle in trade["symbol"]:
-            total_spent += bundle[1]
-            total_qty += bundle[0]
-        realized_purchase_dict[symbol] = total_spent / total_qty
+            totals_spent += bundle[1]
+            totals_qty += bundle[0]
+        realized_purchase_dict[symbol] = totals_spent / totals_qty
 
     actual_realized_gains = {}
     for order in order_list:
@@ -53,10 +68,7 @@ def check_realized_gains(trader_object):
                 order["symbol"]]
 
 def check_unrealized_gains():
-
-
-
-
+    ...
     ## What I need is a dictionary that has the key being the symbol and the qty the average price I spent for each item
     ## THen I compare that against a market screenshot
 
