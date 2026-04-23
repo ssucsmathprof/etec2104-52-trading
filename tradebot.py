@@ -5,15 +5,19 @@ import requests
 import json
 import sys
 import csv
+import configparser
 
 from pylogger import get_logger
 from logging import Logger
 logger: Logger = get_logger()
 
-BASE_URL = "http://127.0.0.1:8000/api"
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+SERVER_URL = config.get("TradeBot", "SERVER_URL", fallback="http://127.0.0.1:8000")
+BASE_URL = f"{SERVER_URL}/api"
 
 type TeamName = str
-
 
 class RequestError(NamedTuple):
     status_code: int
