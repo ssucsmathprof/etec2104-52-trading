@@ -2,7 +2,6 @@ from pylogger import get_logger
 from views import get_trader
 from tradebot import RequestError
 import requests
-import json
 
 logger = get_logger()
 
@@ -66,8 +65,10 @@ def check_realized_gains(trader_object):
                 order["symbol"]]
 
 def check_unrealized_gains(trader_object):
-    ...
-    ## What I need is a dictionary that has the key being the symbol and the qty the average price I spent for each item
+
+    pass
+    ## What I need is a dictionary that has the key being the symbol
+    ## and the qty the average price I spent for each item
     ## THen I compare that against a market screenshot
     ## What I need is for my brain to work
 
