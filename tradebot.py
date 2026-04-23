@@ -165,6 +165,31 @@ class TradeBot:
         logger.info(f"JSON Order dictionary made into Order object: {order}")
         return order
 
+    def cancel_order(self, order_id: int) -> Order | RequestError:
+        """Cancel an order. The returned order will have remaining=-1.
+        Will return RequestError if the order has already been cancelled.
+        """
+
+        logger.info(f"Cancelling order (id={order_id})")
+        payload = {
+            "id": int(order_id),
+        }
+        response = requests.post(
+            BASE_URL + "/orders/cancel",
+            json=payload,
+            auth=(self.username, self.password),
+        )
+
+        if response.status_code not in (200, 201):
+            err = RequestError(response.status_code, response.text)
+            logger.error(f"Failed to cancel order (#{order_id}): {err}")
+            return err
+
+        order_dict = response.json()
+        canceled_order = Order.from_dict(order_dict)
+        logger.debug(f"Cancelled order: {canceled_order}")
+        return canceled_order
+
 
     def get_orders(self) -> list[Order] | RequestError:
         """Get a list of the trader's currently open orders."""
